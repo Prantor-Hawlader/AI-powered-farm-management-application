@@ -1,25 +1,25 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
-
-dotenv.config();
-
+import prisma from "./lib/prisma.js";
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-//Middleware
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+// Middleware
+app.use(cors({ origin: process.env.CLIENT_URL }));
 app.use(express.json());
 
-app.get("/api/health", (_req, res) => {
+// Health check route
+app.get("/", async (req, res) => {
+  const userCount = await prisma.user.count();
   res.json({
-    status: "Running 🌾",
-    service: "Cool Pharmer API",
-    timestamp: new Date().toISOString(),
+    status: "ok",
+    message: "Cool Pharmer API is running! 🌾",
+    users: userCount,
   });
 });
 
-// Server
+// Server start
 app.listen(PORT, () => {
-  console.log(`🌾 Cool Pharmer API has started → http://localhost:${PORT}`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
