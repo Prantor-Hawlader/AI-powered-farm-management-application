@@ -1,21 +1,24 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import prisma from "./lib/prisma.js";
+import { toNodeHandler } from "better-auth/node";
+import { auth } from "./lib/auth.js";
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({ origin: process.env.CLIENT_URL }));
+
+app.all("/api/auth/{*any}", toNodeHandler(auth));
+
 app.use(express.json());
 
-// Health check route
-app.get("/", async (req, res) => {
-  const userCount = await prisma.user.count();
+// Health check
+app.get("/", (req, res) => {
   res.json({
     status: "ok",
     message: "Cool Pharmer API is running! 🌾",
-    users: userCount,
   });
 });
 
